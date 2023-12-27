@@ -1,0 +1,297 @@
+---
+title: "DISTRIBUSI KONTINU [PERBAIKAN]"
+output: html_notebook
+---
+
+```{r}
+# import data
+library(readxl)
+dataTemp <- read_excel('C:/Users/HP CAMO/Documents/Statistika/TUGAS/DISTRIBUSI KONTINYU/Data Temperature Jawa Timur.xlsx')
+head(dataTemp)
+```
+```{r}
+temp <- na.omit(dataTemp$`Temperature Maksimum`)
+head(temp)
+```
+```{r}
+library(distrEx)
+library(RcmdrMisc)
+library(RColorBrewer)
+library(ggplot2)
+library(distr)
+library(distrEx)
+library(plotly)
+```
+
+```{r}
+numSummary(temp)
+```
+```{r}
+# Mean dan Variansi Fungsi Distribusi Kontinyu f(x)
+# 1
+f <- function(X)3*X^2
+integrate(f, lower = 24.0, upper = 32.0)
+
+# 2
+g <- AbscontDistribution(d = f, low1 = 0, up1 = 1)
+
+# 3
+E(g)
+
+#4
+var(g)
+```
+```{r}
+# DISTRIBUSI UNIFORM
+# Membangkitkan Bilangan Random Uniform Kontinyu
+generateRandom <- sample(temp, size = 1000, replace = TRUE)
+generateRandom <- generateRandom/1000
+head(generateRandom)
+tail(generateRandom)
+```
+```{r}
+# Histogram Pembangkitan Distribusi Uniform Dari Data Temperature Jatim 2020
+histUniform<- hist(generateRandom,
+                  main = "PEMBANGKITAN DISTRIBUSI KONTINYU UNIFORM",
+                  #xlab = "Variable Random Dari Data Temperature Jawa Timur",
+                  breaks = c(0.024, 0.025, 0.026, 0.027, 0.028, 0.029, 0.030, 0.031, 0.032),
+                  xlim = c(0.024, 0.032),
+                  col = brewer.pal(3, "Spectral"),
+                  border = "white")
+```
+# https://dosenit.com/r/statistika-di-r-normal-distribution-pada-r-language
+# https://www.datascienceblog.net/post/basic-statistics/distributions/
+# ~ dnorm: density function of the normal distribution
+# ~ pnorm: cumulative density function of the normal distribution
+# ~ qnorm: quantile function of the normal distribution
+# ~ rnorm: random sampling from the normal distribution
+
+```{r}
+# DISTRIBUSI NORMAL - DNORM
+# Fungsi dnorm() digunakan untuk memberikan ketinggian distribusi probabilitas pada setiap titik untuk mean dan deviasi standar tertentu.
+
+# Membangkitkan Data Kontinyu Normal
+sample.range <- temp[50:250]
+temp.mean <- 29.10113 
+temp.sd <- 1.269193
+temp.dNorm <- dnorm(sample.range, mean = temp.mean, sd = temp.sd)
+temp.df <- data.frame("Temperature" = sample.range, "Density" = temp.dNorm)
+
+# Visualisasi Data Kontinyu Normal
+plotdNorm <- ggplot(temp.df, aes(x = Temperature, y = Density)) + 
+  geom_point(col = "maroon") +
+  labs(title = "DENSITY FUNCTION OF NORMAL DISTRIBUTION", x = "TEMPERATURE", y = "DENSITY")+
+  theme_minimal()
+ggplotly(plotdNorm)
+```
+```{r}
+histdNorm <- hist(temp.dNorm,
+                  main = "DENSITY FUNCTION OF NORMAL DISTRIBUTION",
+                  xlab = "Data Temperature Jawa Timur",
+                  #breaks = c(0.024, 0.025, 0.026, 0.027, 0.028, 0.029, 0.030, 0.031, 0.032),
+                  #xlim = c(0.024, 0.032),
+                  col = brewer.pal(3, "Spectral"),
+                  border = "white")
+```
+```{r}
+# DISTRIBUSI NORMAL - PNORM
+# Fungsi pnorm() digunakan untuk memberikan probabilitas bilangan acak terdistribusi normal menjadi lebih kecil dari nilai bilangan tertentu. Ini juga disebut “Fungsi Distribusi Kumulatif”.
+
+# Membangkitkan Data Kontinyu Normal
+sample.range <- temp[50:250]
+temp.mean <- 29.10113 
+temp.sd <- 1.269193
+cdf <- pnorm(sample.range, temp.mean, temp.sd, lower.tail = FALSE) # LOWER TAIL FALSE >> Menjauhi 1
+temp.df <- data.frame("Temperature" = sample.range, "Density" = temp.dNorm)
+temp.df <- cbind(temp.df, "CDF_LowerTail" = cdf)
+
+# Visualisasi Data Kontinyu Normal
+plotpNorm <- ggplot(temp.df, aes(x = Temperature, y = CDF_LowerTail)) + 
+  geom_point(col = "red") +
+  labs(title = "CUMULATIVE DENSITY FUNCTION OF NORMAL DISTRIBUTION", x = "RANDOM TEMPERATURE", y = "DENSITY")+
+  theme_minimal()
+ggplotly(plotpNorm)
+```
+```{r}
+# DISTRIBUSI NORMAL - PNORM
+# Fungsi pnorm() digunakan untuk memberikan probabilitas bilangan acak terdistribusi normal menjadi lebih kecil dari nilai bilangan tertentu. Ini juga disebut “Fungsi Distribusi Kumulatif”.
+
+# Membangkitkan Data Kontinyu Normal
+sample.range <- temp[50:250]
+temp.mean <- 29.10113 
+temp.sd <- 1.269193
+cdf <- pnorm(sample.range, temp.mean, temp.sd, lower.tail = TRUE) # LOWER TAIL TRUE >> Mendekati 1
+temp.df <- data.frame("Temperature" = sample.range, "Density" = temp.dNorm)
+temp.df <- cbind(temp.df, "CDF_LowerTail" = cdf)
+
+# Visualisasi Data Kontinyu Normal
+plotpNorm <- ggplot(temp.df, aes(x = Temperature, y = CDF_LowerTail)) + 
+  geom_point(col = "red") +
+  labs(title = "CUMULATIVE DENSITY FUNCTION OF NORMAL DISTRIBUTION", x = "RANDOM TEMPERATURE", y = "DENSITY")+
+  theme_minimal()
+ggplotly(plotpNorm)
+```
+```{r}
+histpNorm<- hist(cdf,
+                  main = "CUMULATIVE DENSITY FUNCTION OF NORMAL DISTRIBUTION",
+                  xlab = "Data Temperature Jawa Timur",
+                  #breaks = c(0.024, 0.025, 0.026, 0.027, 0.028, 0.029, 0.030, 0.031, 0.032),
+                  #xlim = c(0.024, 0.032),
+                  col = brewer.pal(3, "Spectral"),
+                  border = "white")
+```
+```{r}
+# Distribusi Probabilitas
+x <- table(temp)/length(temp)
+dPro <- data.frame(x)
+head(dPro)
+```
+```{r}
+# DISTRIBUSI NORMAL - QNORM
+# Fungsi qnorm() digunakan untuk mengambil nilai probabilitas dan memberikan angka yang nilai kumulatifnya cocok dengan nilai probabilitas.
+
+# Membangkitkan Data Kontinyu Normal
+prob.range <- dPro$Freq
+icdf.df <- data.frame("Probability" = prob.range, "Temperature" = qnorm(prob.range, temp.mean, temp.sd))
+
+# Visualisasi Data Kontinyu Normal
+plotqNorm <- ggplot(icdf.df, aes(x = Probability, y = Temperature)) + 
+  geom_point(col = "orange") +
+  labs(title = "QUANTILE FUNCTION OF NORMAL DISTRIBUTION", x = "PROBABILITY", y = "TEMPERATURE")+
+  theme_minimal()
+ggplotly(plotqNorm)
+```
+```{r}
+x <- table(temp)/length(temp)
+dPro <- data.frame(x)
+prob.range <- dPro$Freq
+icdf.df <- qnorm(prob.range, temp.mean, temp.sd)
+histqNormal<- hist(icdf.df,
+                  main = "QUANTILE FUNCTION OF NORMAL DISTRIBUTION",
+                  xlab = "Data Temperature Jawa Timur",
+                  col = brewer.pal(3, "Spectral"),
+                  border = "white")
+```
+```{r}
+# DISTRIBUSI NORMAL - RNORM
+# Fungsi rnorm() digunakan untuk menghasilkan bilangan acak yang distribusinya normal. 
+
+# Membangkitkan Data Kontinyu Normal
+rNormal <- rnorm(353, temp.mean, temp.sd^0.5)
+
+# Histogram Data Kontinyu Normal
+histrNormal<- hist(rNormal,
+                  main = "RANDOM SAMPLING FROM NORMAL DISTRIBUTION",
+                  xlab = "Data Temperature Jawa Timur",
+                  col = brewer.pal(3, "Spectral"),
+                  border = "white")
+```
+```{r}
+# DISTRIBUSI EKSPONENSIAL - DEXP
+# Fungsi
+
+# Membangkitkan Data Kontinyu Eksponensial
+sample.range <- temp[50:250]
+temp.dEks <- dexp(sample.range, rate = 1, log = FALSE)
+temp.df <- data.frame("Temperature" = sample.range, "Density" = temp.dEks)
+
+# Visualisasi Data Kontinyu Eksponensial
+plotdEks <- ggplot(temp.df, aes(x = Temperature, y = Density)) + 
+  geom_point(col = "navy") +
+  labs(title = "DENSITY FUNCTION OF EKSPONENTIAL DISTRIBUTION", x = "TEMPERATURE", y = "DENSITY")+
+  theme_minimal()
+ggplotly(plotdEks)
+```
+```{r}
+# DISTRIBUSI EKSPONENSIAL - PEXP
+# Fungsi
+
+# Membangkitkan Data Kontinyu Eksponensial
+sample.range <- temp[50:250]
+temp.pEks <- pexp(sample.range, lower.tail = TRUE, log.p = FALSE)
+temp.df <- data.frame("Temperature" = sample.range, "Density" = temp.pEks)
+
+# Visualisasi Data Kontinyu Eksponensial
+plotpEks <- ggplot(temp.df, aes(x = Temperature, y = Density)) + 
+  geom_point(col = "blue") +
+  labs(title = "CUMULATIVE DENSITY FUNCTION OF EKSPONENTIAL DISTRIBUTION", x = "RANDOM TEMPERATURE", y = "DENSITY")+
+  theme_minimal()
+ggplotly(plotpEks)
+```
+```{r}
+sample.range <- temp[50:250]
+temp.pEks <- pexp(sample.range, lower.tail = TRUE, log.p = FALSE)
+plotdEksponensial <- plot(sample.range, temp.pEks, type = "h", xlab = "RANDOM TEMPERATURE", ylab = "DENSITY", main = "CUMULATIVE DENSITY FUNCTION OF EKSPONENTIAL DISTRIBUTION")
+```
+```{r}
+# DISTRIBUSI EKSPONENSIAL - QEXP
+# Fungsi
+
+# Membangkitkan Data Kontinyu Eksponensial
+prob.range <- dPro$Freq
+temp.qEks <- qexp(prob.range, lower.tail = TRUE, log.p = FALSE)
+temp.df <- data.frame("Temperature" = prob.range, "Probability" = temp.qEks)
+
+# Visualisasi Data Kontinyu Eksponensial
+plotqEks <- ggplot(temp.df, aes(x = Temperature, y = Probability)) + 
+  geom_point(col = "blue") +
+  labs(title = "QUANTILE FUNCTION OF EKSPONENTIAL DISTRIBUTION", x = "TEMPERATURE", y = "PROBABILITY")+
+  theme_minimal()
+ggplotly(plotqEks)
+```
+```{r}
+prob.range <- dPro$Freq
+temp.qEks <- qexp(prob.range, lower.tail = TRUE, log.p = FALSE)
+temp.df <- data.frame("Temperature" = prob.range, "Density" = temp.qEks)
+histqEksponensial<- hist(temp.qEks,
+                  main = "QUANTILE FUNCTION OF EKSPONENTIAL DISTRIBUTION",
+                  xlab = "Data Temperature Jawa Timur",
+                  col = brewer.pal(3, "Spectral"),
+                  border = "white")
+plotdEksponensial <- plot(prob.range, temp.qEks, type = "h")
+```
+```{r}
+# Membangkitkan Data Kontinyu Weibull
+x <- temp[50:250]
+y <- seq(25, 32)
+weibull <- dweibull(x, shape = x, scale = y)
+
+# Histogram Data Kontinyu Normal
+histWeibull<- hist(weibull,
+                  main = "DISTRIBUSI WEIBULL",
+                  xlab = "Data Temperature Jawa Timur",
+                  col = brewer.pal(3, "Spectral"),
+                  border = "white")
+```
+```{r}
+library(readxl)
+library(ggplot2)
+```
+
+```{r}
+# data untuk visualisasi bagian home rshiny
+dataku <- read_excel("C:/Users/HP CAMO/Documents/Statistika/TUGAS/DISTRIBUSI KONTINYU/home.xls")
+dataku
+```
+```{r}
+x <- na.omit(dataku)
+dataBaru <- data.frame(x)
+dataBaru
+```
+```{r}
+diagram <- ggplot(data = dataku, aes(x = TANGGAL, y = JANUARI)) +
+            geom_line(col = "skyblue") +
+            geom_point(col = "pink") +
+            labs(title = "TEMPERATURE MAKSIMUM BULAN JANUARI", x = "TANGGAL", y = "TEMPERATURE")+
+            theme_minimal()
+ggplotly(diagram)
+```
+```{r}
+diagram <- ggplot(data = dataku, aes(x = TANGGAL, y = FEBRUARI)) +
+            geom_line(col = "navy") +
+            geom_point(col = "pink") +
+            labs(title = "TEMPERATURE MAKSIMUM BULAN JANUARI", x = "TANGGAL", y = "TEMPERATURE")+
+            theme_minimal()
+ggplotly(diagram)
+```
+
